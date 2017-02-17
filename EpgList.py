@@ -199,8 +199,8 @@ class EPGList(HTMLComponent, GUIComponent):
 		self.serviceNamePadding = 3
 		self.eventBorderWidth = 1
 		self.eventNamePadding = 3
-		#self.eventNameAlign = 'left'
-		#self.eventNameWrap = 'yes'
+		self.eventNameAlign = 'left'
+		self.eventNameWrap = 'yes'
 		self.NumberOfRows = None
 
 	def applySkin(self, desktop, screen):
@@ -233,10 +233,10 @@ class EPGList(HTMLComponent, GUIComponent):
 					font = parseFont(value, ((1,1),(1,1)) )
 					self.eventFontNameMulti = font.family
 					self.eventFontSizeMulti = font.pointSize
-				#elif attrib == "EntryFontAlignment":
-					#self.eventNameAlign = value
-				#elif attrib == "EntryFontWrap":
-					#self.eventNameWrap = value
+				elif attrib == "EntryFontAlignment":
+					self.eventNameAlign = value
+				elif attrib == "EntryFontWrap":
+					self.eventNameWrap = value
 
 				elif attrib == "ServiceForegroundColor":
 					self.foreColorService = parseColor(value).argb()
@@ -1002,10 +1002,19 @@ class EPGList(HTMLComponent, GUIComponent):
 				duration = ev[3]
 				xpos, ewidth = self.calcEntryPosAndWidthHelper(stime, duration, start, end, width)
 				clock_types = self.getPixmapForEntry(service, ev[0], stime, duration)
-			
+				if self.eventNameAlign.lower() == 'left':
+					if self.eventNameWrap.lower() == 'yes':
+						alignnment = RT_HALIGN_LEFT | RT_VALIGN_CENTER | RT_WRAP
+					else:
+						alignnment = RT_HALIGN_LEFT | RT_VALIGN_CENTER
+				else:
+					if self.eventNameWrap.lower() == 'yes':
+						alignnment = RT_HALIGN_CENTER | RT_VALIGN_CENTER | RT_WRAP
+					else:
+						alignnment = RT_HALIGN_CENTER | RT_VALIGN_CENTER
 
 				if stime <= now < (stime + duration):
-					if clock_types is not None and clock_types == 2:
+					if clock_types is not None and (clock_types == 2 or clock_types == 12):
 						foreColor = self.foreColorRecord
 						backColor = self.backColorRecord
 						foreColorSel = self.foreColorRecordSelected
@@ -1020,7 +1029,7 @@ class EPGList(HTMLComponent, GUIComponent):
 					backColor = self.backColor
 					foreColorSel = self.foreColorSelected
 					backColorSel = self.backColorSelected
-					if clock_types is not None and clock_types == 2:
+					if clock_types is not None and (clock_types == 2 or clock_types == 12):
 						foreColor = self.foreColorRecord
 						backColor = self.backColorRecord
 						foreColorSel = self.foreColorRecordSelected
