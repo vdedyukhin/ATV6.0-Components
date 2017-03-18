@@ -1063,7 +1063,7 @@ class EPGList(HTMLComponent, GUIComponent):
 					borderRightPix = self.borderRightPix
 					infoPix = self.InfoPix
 					if stime <= now < (stime + duration):
-						if clock_types is not None and clock_types == 2:
+						if clock_types is not None and (clock_types == 2 or clock_types == 12):
 							bgpng = self.recordingEvPix
 						else:
 							bgpng = self.nowEvPix
