@@ -128,8 +128,8 @@ def InitUsageConfig():
 	config.usage.tuxtxt_EndX = ConfigInteger(default=670, limits = (500, 1920))
 	config.usage.tuxtxt_StartY = ConfigInteger(default=30, limits = (0, 200))
 	config.usage.tuxtxt_EndY = ConfigInteger(default=555, limits = (400, 1080))
-	config.usage.tuxtxt_TTFShiftY = ConfigInteger(default=2, limits = (-9, 9))
-	config.usage.tuxtxt_TTFShiftX = ConfigInteger(default=0, limits = (-9, 9))
+	config.usage.tuxtxt_TTFShiftY = ConfigSelection(default = "2", choices = [("-9", "-9"), ("-8", "-8"), ("-7", "-7"), ("-6", "-6"), ("-5", "-5"), ("-4", "-4"), ("-3", "-3"), ("-2", "-2"), ("-1", "-1"), ("0", "0"), ("1", "1"), ("2", "2"), ("3", "3"), ("4", "4"), ("5", "5"), ("6", "6"), ("7", "7"), ("8", "8"), ("9", "9")])
+	config.usage.tuxtxt_TTFShiftX = ConfigSelection(default = "0", choices = [("-9", "-9"), ("-8", "-8"), ("-7", "-7"), ("-6", "-6"), ("-5", "-5"), ("-4", "-4"), ("-3", "-3"), ("-2", "-2"), ("-1", "-1"), ("0", "0"), ("1", "1"), ("2", "2"), ("3", "3"), ("4", "4"), ("5", "5"), ("6", "6"), ("7", "7"), ("8", "8"), ("9", "9")])
 	config.usage.tuxtxt_TTFWidthFactor16 = ConfigInteger(default=29, limits = (8, 31))
 	config.usage.tuxtxt_TTFHeightFactor16 = ConfigInteger(default=14, limits = (8, 31))
 	config.usage.tuxtxt_CleanAlgo = ConfigInteger(default=0, limits = (0, 9))
@@ -289,7 +289,7 @@ def InitUsageConfig():
 		choicelist.append((str(i), _("Execute in ") + m))
 	config.usage.sleep_timer = ConfigSelection(default = "0", choices = choicelist)
 
-	choicelist = [("show_menu", _("Show shutdown menu")), ("shutdown", _("Immediate shutdown")), ("standby", _("Standby")), ("sleeptimer", _("SleepTimer")), ("powertimerStandby", _("PowerTimer Standby")), ("powertimerDeepStandby", _("PowerTimer DeepStandby"))]
+	choicelist = [("show_menu", _("Show shutdown menu")), ("shutdown", _("Immediate shutdown")), ("standby", _("Standby")), ("standby_noTVshutdown", _("Standby without TV shutdown")), ("sleeptimer", _("SleepTimer")), ("powertimerStandby", _("PowerTimer Standby")), ("powertimerDeepStandby", _("PowerTimer DeepStandby"))]
 	config.usage.on_long_powerpress = ConfigSelection(default = "show_menu", choices = choicelist)
 	config.usage.on_short_powerpress = ConfigSelection(default = "standby", choices = choicelist)
 
@@ -1169,8 +1169,8 @@ def patchTuxtxtConfFile(dummyConfigElement):
 		           ["EndX",              config.usage.tuxtxt_EndX.value],
 		           ["StartY",            config.usage.tuxtxt_StartY.value],
 		           ["EndY",              config.usage.tuxtxt_EndY.value],
-		           ["TTFShiftY",         config.usage.tuxtxt_TTFShiftY.value],
-		           ["TTFShiftX",         config.usage.tuxtxt_TTFShiftX.value],
+		           ["TTFShiftY",         int(config.usage.tuxtxt_TTFShiftY.value)],
+		           ["TTFShiftX",         int(config.usage.tuxtxt_TTFShiftX.value)],
 		           ["TTFWidthFactor16",  config.usage.tuxtxt_TTFWidthFactor16.value],
 		           ["TTFHeightFactor16", config.usage.tuxtxt_TTFHeightFactor16.value]]
 	tuxtxt2.append(    ["CleanAlgo",         config.usage.tuxtxt_CleanAlgo.value] )
@@ -1181,6 +1181,9 @@ def patchTuxtxtConfFile(dummyConfigElement):
 		#replace keyword (%s) followed by any value ([-0-9]+) by that keyword \1 and the new value %d
 		command += "s|(%s)\s+([-0-9]+)|\\1 %d|;" % (f[0],f[1])
 	command += "' %s" % TUXTXT_CFG_FILE
+	for f in tuxtxt2:
+            #if keyword is not found in file, append keyword and value
+            command += " ; if ! grep -q '%s' %s ; then echo '%s %d' >> %s ; fi"  % (f[0],TUXTXT_CFG_FILE,f[0],f[1],TUXTXT_CFG_FILE)
 	try:
 		os.system(command)
 	except:
