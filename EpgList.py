@@ -1069,7 +1069,7 @@ class EPGList(HTMLComponent, GUIComponent):
 							bgpng = self.nowEvPix
 					else:
 						bgpng = self.othEvPix
-						if clock_types is not None and clock_types == 2:
+						if clock_types is not None and (clock_types == 2 or clock_types == 12):
 							bgpng = self.recEvPix
 						elif clock_types is not None and clock_types == 7:
 							bgpng = self.zapEvPix
